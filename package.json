@@ -1,0 +1,21 @@
+{
+  "name": "invoice-gen",
+  "version": "1.0.0",
+  "description": "Invoice Gen - E-commerce invoice generator with Node.js, Express, EJS and MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.6.1",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "mongoose": "^8.18.0"
+  }
+}
