@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Gen</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{--blue:#1454d9;--dark:#0e1b3d;--muted:#6b7280;--bg:#f5f7fb;--card:#fff;--line:#e5eaf3;--green:#149447;--orange:#e68a00;--red:#d93b3b}
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--dark)}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+    .auth{min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(135deg,#eef4ff,#fff)}
+    .auth-card{width:min(440px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:0 20px 70px #17356b14}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:24px}.brand-mark{width:44px;height:44px;border-radius:13px;background:var(--blue);color:#fff;display:grid;place-items:center}
+    h1,h2,h3{margin:0 0 8px}.muted{color:var(--muted)}.form{display:grid;gap:14px;margin-top:22px}.field{display:grid;gap:7px}.field label{font-weight:700;font-size:13px}.field input,.field select,.field textarea{width:100%;padding:12px 13px;border:1px solid #d9e0ec;border-radius:11px;outline:none;background:#fff}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #1454d91a}
+    .btn{border:0;border-radius:11px;padding:12px 16px;font-weight:800}.primary{background:var(--blue);color:#fff}.ghost{background:#eef3ff;color:var(--blue)}.danger{background:#fff0f0;color:var(--red)}.link{background:none;border:0;color:var(--blue);font-weight:700}
+    .app{min-height:100vh;display:grid;grid-template-columns:245px 1fr}.side{background:#0d1a3a;color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh}.side .brand{margin-bottom:35px}.side .brand-mark{background:#fff;color:var(--blue)}
+    .nav{display:grid;gap:7px}.nav button{border:0;background:transparent;color:#cbd5ee;text-align:left;padding:12px;border-radius:10px;font-weight:700}.nav button.active,.nav button:hover{background:#fff;color:var(--blue)}
+    .main{padding:28px;max-width:1500px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.userbox{display:flex;align-items:center;gap:10px}.avatar{width:38px;height:38px;border-radius:50%;background:#dce8ff;color:var(--blue);display:grid;place-items:center;font-weight:900}
+    .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:18px;box-shadow:0 7px 24px #122b5c08}.stat .label{color:var(--muted);font-size:13px;font-weight:700}.stat .value{font-size:25px;font-weight:900;margin-top:7px}.grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:15px;margin-top:15px}.chartbox{height:310px}.table-card{margin-top:15px;overflow:auto}.toolbar{display:flex;gap:9px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:15px}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px}.filters button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+    table{width:100%;border-collapse:collapse;min-width:750px}th,td{text-align:left;padding:13px;border-bottom:1px solid var(--line);font-size:13px}th{color:#64708a;background:#fafbfe}.badge{padding:5px 9px;border-radius:99px;font-size:11px;font-weight:900}.Paid{background:#e8f8ee;color:var(--green)}.Pending{background:#fff5df;color:var(--orange)}.Unpaid{background:#fff0df;color:#a55d00}.Failed,.Cancelled{background:#ffecec;color:var(--red)}
+    .page{display:none}.page.active{display:block}.section-title{margin:4px 0 18px}.designer{display:grid;grid-template-columns:330px 1fr;gap:15px}.controls{max-height:calc(100vh - 120px);overflow:auto}.control-section{padding:15px;border-bottom:1px solid var(--line)}.control-section h3{font-size:14px}.preview-wrap{background:#dfe4ed;padding:25px;border-radius:17px;overflow:auto}.invoice{background:#fff;width:900px;min-height:1200px;margin:auto;padding:28px;color:#121b3b;box-shadow:0 8px 30px #122b5c18}.invoice *{max-width:100%}.inv-head{display:grid;grid-template-columns:1.1fr 1fr;gap:20px;border-bottom:2px solid var(--primary,#1454d9);padding-bottom:18px}.company{display:flex;gap:14px}.logo{width:74px;height:74px;border:1px dashed #9eb2d9;border-radius:8px;object-fit:contain;display:grid;place-items:center}.company h2{font-size:25px}.tax-title{text-align:right}.tax-title h1{font-size:34px}.meta{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:13px}.boxes{display:grid;grid-template-columns:1fr 1fr .7fr;gap:14px;margin:18px 0}.ibox{border:1px solid #bfd0f4;border-radius:9px;padding:14px;min-height:170px}.ibox h3{color:var(--primary,#1454d9);font-size:15px}.lines{display:grid;gap:8px;margin-top:10px}.line{height:9px;border-bottom:1px solid #aab1bf}.items{width:100%;border-collapse:collapse}.items th{background:var(--primary,#1454d9);color:#fff}.items td,.items th{border:1px solid #cbd7f0;padding:8px;font-size:11px}.bottom{display:grid;grid-template-columns:1fr 1.2fr;gap:14px;margin-top:14px}.payment,.totals{border:1px solid #bfd0f4;border-radius:9px;padding:15px}.total-row{display:flex;justify-content:space-between;padding:7px}.grand{background:var(--primary,#1454d9);color:#fff;padding:11px;font-size:18px;font-weight:900}.signs{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:25px;gap:15px}.sign{height:90px;border:1px dashed #b8c5df;border-radius:8px;padding:10px;text-align:center}.footer{border-top:2px solid var(--primary,#1454d9);margin-top:25px;padding-top:10px;text-align:center;font-size:11px}
+    .item-form{display:grid;grid-template-columns:2fr 1fr 1fr .7fr 1fr 1fr auto;gap:7px;margin-bottom:8px}.item-form input{padding:9px;border:1px solid var(--line);border-radius:8px}.mini{font-size:12px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .toast{position:fixed;right:20px;bottom:20px;background:#0d1a3a;color:#fff;padding:13px 17px;border-radius:11px;display:none;z-index:20}.toast.show{display:block}
+    @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.grid2,.designer{grid-template-columns:1fr}.side{display:none}.app{display:block}.main{padding:16px}.controls{max-height:none}.preview-wrap{padding:10px}}
+    @media(max-width:650px){.cards{grid-template-columns:1fr}.two,.three,.boxes,.bottom,.inv-head{grid-template-columns:1fr}.tax-title{text-align:left}.item-form{grid-template-columns:1fr 1fr}.top{align-items:flex-start;gap:10px}.userbox{display:none}}
+  </style>
+</head>
+<body>
+
+<div id="authView" class="auth <%= loggedIn ? 'hidden' : '' %>">
+  <div class="auth-card">
+    <div class="brand"><div class="brand-mark">IG</div><span>Invoice Gen</span></div>
+    <p class="muted" style="margin-top:8px">Professional e-commerce invoice management.</p>
+
+    <div id="loginBox">
+      <h2 style="margin-top:25px">Welcome back</h2>
+      <form id="loginForm" class="form">
+        <div class="field"><label>Email</label><input name="email" type="email" required></div>
+        <div class="field"><label>Password</label><input name="password" type="password" required></div>
+        <button class="btn primary">Login</button>
+      </form>
+      <p class="muted mini" style="text-align:center;margin-top:15px">New user? <button class="link" type="button" onclick="showRegister()">Create account</button></p>
+    </div>
+
+    <div id="registerBox" class="hidden">
+      <h2 style="margin-top:25px">Create account</h2>
+      <form id="registerForm" class="form">
+        <div class="field"><label>Email</label><input name="email" type="email" required></div>
+        <div class="two">
+          <div class="field"><label>Password</label><input name="password" type="password" minlength="6" required></div>
+          <div class="field"><label>Confirm</label><input name="confirmPassword" type="password" required></div>
+        </div>
+        <div class="two">
+          <div class="field"><label>Mobile Number</label><input name="mobile" type="tel"></div>
+          <div class="field"><label>WhatsApp Number</label><input name="whatsapp" type="tel"></div>
+        </div>
+        <label class="mini"><input name="terms" type="checkbox" value="yes" required> I accept Terms & Conditions.</label>
+        <button class="btn primary">Register</button>
+      </form>
+      <p class="muted mini" style="text-align:center;margin-top:15px">Already have an account? <button class="link" type="button" onclick="showLogin()">Login</button></p>
+    </div>
+  </div>
+</div>
+
+<div id="appView" class="app <%= loggedIn ? '' : 'hidden' %>">
+  <aside class="side">
+    <div class="brand"><div class="brand-mark">IG</div><span>Invoice Gen</span></div>
+    <div class="nav">
+      <button class="active" data-page="dashboard">▣ &nbsp; Dashboard</button>
+      <button data-page="create">＋ &nbsp; Create Invoice</button>
+      <button data-page="history">▤ &nbsp; History</button>
+      <button data-page="templates">▦ &nbsp; Templates</button>
+      <button data-page="settings">⚙ &nbsp; Settings</button>
+    </div>
+    <div style="position:absolute;bottom:22px;left:16px;right:16px">
+      <button class="btn ghost" style="width:100%" onclick="logout()">Logout</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div><h1 id="pageTitle">Dashboard</h1><div class="muted">Manage your invoices and payments.</div></div>
+      <div class="userbox"><div class="avatar">U</div><span id="userEmail"><%= userEmail %></span></div>
+    </div>
+
+    <section id="page-dashboard" class="page active">
+      <div class="cards">
+        <div class="card stat"><div class="label">Total Income</div><div class="value" id="totalIncome">₹0</div></div>
+        <div class="card stat"><div class="label">Total Revenue</div><div class="value" id="totalRevenue">₹0</div></div>
+        <div class="card stat"><div class="label">Monthly Income</div><div class="value" id="monthlyIncome">₹0</div></div>
+        <div class="card stat"><div class="label">Pending Payments</div><div class="value" id="pendingAmount">₹0</div></div>
+        <div class="card stat"><div class="label">Paid Payments</div><div class="value" id="paidCount">0</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card chartbox"><h3>Revenue Analytics</h3><canvas id="revenueChart"></canvas></div>
+        <div class="card"><h3>Payment Overview</h3><div id="overview" style="margin-top:25px;display:grid;gap:16px"></div></div>
+      </div>
+      <div class="card table-card"><div class="toolbar"><h3>Recent Invoices</h3><button class="btn primary" onclick="go('create')">+ Create Invoice</button></div><div id="recentTable"></div></div>
+    </section>
+
+    <section id="page-history" class="page">
+      <div class="card table-card" style="margin-top:0">
+        <div class="toolbar">
+          <h3>Invoice History</h3>
+          <div class="filters">
+            <button class="active" onclick="loadHistory('All',this)">All</button>
+            <button onclick="loadHistory('Paid',this)">Paid</button>
+            <button onclick="loadHistory('Pending',this)">Pending</button>
+            <button onclick="loadHistory('Unpaid',this)">Unpaid</button>
+            <button onclick="loadHistory('Failed',this)">Failed</button>
+            <button onclick="loadHistory('Cancelled',this)">Cancelled</button>
+          </div>
+        </div>
+        <div id="historyTable"></div>
+      </div>
+    </section>
+
+    <section id="page-create" class="page">
+      <div class="designer">
+        <div class="card controls">
+          <div class="control-section"><h3>Template</h3><select id="templateSelect" class="field" onchange="applyTemplate()"><option value="1">Template 1 — Linux Industries</option><option value="2">Template 2 — Clean Blank</option><option value="3">Template 3 — Demo</option></select></div>
+          <div class="control-section"><h3>Company</h3><div class="form">
+            <input id="companyName" placeholder="Company Name" value="Your Company Name">
+            <input id="tagline" placeholder="Tagline" value="Grow Your Business With Invoice Gen">
+            <input id="companyAddress" placeholder="Business Address">
+            <input id="companyPhone" placeholder="Phone">
+            <input id="companyEmail" placeholder="Email">
+            <input id="companyWebsite" placeholder="Website">
+            <div class="two"><input id="gstin" placeholder="GSTIN"><input id="pan" placeholder="PAN"></div>
+            <label class="mini">Logo <input id="logoInput" type="file" accept="image/*"></label>
+          </div></div>
+          <div class="control-section"><h3>Invoice</h3><div class="form">
+            <div class="two"><input id="invoiceNumber" placeholder="Invoice Number"><input id="orderId" placeholder="Order ID"></div>
+            <div class="three"><input id="invoiceDate" type="date"><input id="dueDate" type="date"><input id="reference" placeholder="Reference"></div>
+            <select id="status"><option>Pending</option><option>Paid</option><option>Unpaid</option><option>Failed</option><option>Cancelled</option></select>
+          </div></div>
+          <div class="control-section"><h3>Customer</h3><div class="form">
+            <input id="customerName" placeholder="Customer Name">
+            <textarea id="customerAddress" rows="3" placeholder="Customer Address"></textarea>
+            <input id="customerPhone" placeholder="Customer Phone">
+            <input id="customerEmail" placeholder="Customer Email">
+            <input id="placeOfSupply" placeholder="Place of Supply">
+          </div></div>
+          <div class="control-section"><h3>Shipping Address</h3><textarea id="shippingAddress" rows="4" placeholder="Shipping Address"></textarea></div>
+          <div class="control-section"><h3>Items</h3><div id="itemsEditor"></div><button class="btn ghost" onclick="addItem()">+ Add Item</button></div>
+          <div class="control-section"><h3>Payment</h3><div class="form">
+            <input id="paymentMethod" placeholder="Payment Method">
+            <input id="utr" placeholder="Transaction ID / UTR">
+            <input id="paymentDate" type="datetime-local">
+            <input id="amountPaid" type="number" step="0.01" placeholder="Amount Paid">
+            <input id="paymentTerms" placeholder="Payment Terms" value="Immediate Payment">
+          </div></div>
+          <div class="control-section"><h3>Design</h3><div class="form">
+            <label class="field">Primary Color<input id="primaryColor" type="color" value="#1454d9"></label>
+            <label class="field">Secondary Color<input id="secondaryColor" type="color" value="#0e1b3d"></label>
+            <select id="fontFamily"><option>Inter</option><option>Arial</option><option>Georgia</option><option>Verdana</option></select>
+          </div></div>
+          <div class="control-section"><div style="display:flex;gap:8px"><button class="btn primary" style="flex:1" onclick="saveInvoice()">Save Invoice</button><button class="btn ghost" onclick="window.print()">Print</button></div></div>
+        </div>
+
+        <div class="preview-wrap"><div id="invoicePreview" class="invoice"></div></div>
+      </div>
+    </section>
+
+    <section id="page-templates" class="page">
+      <div class="cards" style="grid-template-columns:repeat(3,1fr)">
+        <div class="card"><h3>Template 1</h3><p class="muted">Blue professional tax invoice layout.</p><button class="btn primary" onclick="chooseTemplate(1)">Use Template</button></div>
+        <div class="card"><h3>Template 2</h3><p class="muted">Clean customizable invoice layout.</p><button class="btn primary" onclick="chooseTemplate(2)">Use Template</button></div>
+        <div class="card"><h3>Template 3</h3><p class="muted">Filled/demo style invoice layout.</p><button class="btn primary" onclick="chooseTemplate(3)">Use Template</button></div>
+      </div>
+    </section>
+
+    <section id="page-settings" class="page">
+      <div class="card" style="max-width:650px"><h3>Account Settings</h3><p class="muted">Your registered account details.</p><div id="settingsBox" class="form"></div></div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+let items = [{description:"",hsn:"",rate:0,qty:1,discount:0,tax:18}];
+let logoData = "";
+let revenueChart = null;
+
+const $ = id => document.getElementById(id);
+const money = n => "₹" + Number(n || 0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+const val = id => $(id)?.value || "";
+
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
+function showRegister(){$("loginBox").classList.add("hidden");$("registerBox").classList.remove("hidden")}
+function showLogin(){$("registerBox").classList.add("hidden");$("loginBox").classList.remove("hidden")}
+
+async function postForm(url, form){
+  const body=Object.fromEntries(new FormData(form).entries());
+  const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  return r.json();
+}
+$("loginForm").addEventListener("submit",async e=>{e.preventDefault();const d=await postForm("/api/login",e.target);if(d.ok) location.reload(); else toast(d.message)});
+$("registerForm").addEventListener("submit",async e=>{e.preventDefault();const d=await postForm("/api/register",e.target);if(d.ok) location.reload(); else toast(d.message)});
+
+async function logout(){await fetch("/api/logout",{method:"POST"});location.reload()}
+
+function go(page){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  $("page-"+page).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+  $("pageTitle").textContent={dashboard:"Dashboard",create:"Create Invoice",history:"History",templates:"Templates",settings:"Settings"}[page];
+  if(page==="dashboard") loadDashboard();
+  if(page==="history") loadHistory("All");
+  if(page==="settings") loadSettings();
+  if(page==="create"){renderItemsEditor();renderInvoice()}
+}
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
+
+function chooseTemplate(n){go("create");$("templateSelect").value=n;applyTemplate();renderInvoice()}
+
+function applyTemplate(){
+  const n=$("templateSelect").value;
+  if(n==="1"){
+    $("companyName").value="Linux Industries";
+    $("tagline").value="Grow Your Business With Invoice Gen";
+    $("primaryColor").value="#1454d9";
+  }else if(n==="2"){
+    $("companyName").value="Your Company Name";
+    $("tagline").value="Your Tagline / Slogan Here";
+    $("primaryColor").value="#1454d9";
+  }else{
+    $("companyName").value="Linux Industries";
+    $("tagline").value="Grow Your Business With Invoice Gen";
+    $("primaryColor").value="#1454d9";
+    $("customerName").value="Demo Customer";
+    $("customerAddress").value="Customer Address, India";
+    items=[{description:"Sample Product",hsn:"85444999",rate:100,qty:2,discount:0,tax:18}];
+  }
+  renderItemsEditor();renderInvoice();
+}
+
+function addItem(){items.push({description:"",hsn:"",rate:0,qty:1,discount:0,tax:18});renderItemsEditor();renderInvoice()}
+function removeItem(i){items.splice(i,1);if(!items.length)items.push({description:"",hsn:"",rate:0,qty:1,discount:0,tax:18});renderItemsEditor();renderInvoice()}
+function updateItem(i,k,v){items[i][k]=k==="description"||k==="hsn"?v:Number(v);renderInvoice()}
+
+function renderItemsEditor(){
+  $("itemsEditor").innerHTML=items.map((it,i)=>`
+    <div class="item-form">
+      <input placeholder="Description" value="${esc(it.description)}" oninput="updateItem(${i},'description',this.value)">
+      <input placeholder="HSN" value="${esc(it.hsn)}" oninput="updateItem(${i},'hsn',this.value)">
+      <input type="number" step="0.01" placeholder="Rate" value="${it.rate}" oninput="updateItem(${i},'rate',this.value)">
+      <input type="number" step="1" placeholder="Qty" value="${it.qty}" oninput="updateItem(${i},'qty',this.value)">
+      <input type="number" step="0.01" placeholder="Discount" value="${it.discount}" oninput="updateItem(${i},'discount',this.value)">
+      <input type="number" step="0.01" placeholder="Tax %" value="${it.tax}" oninput="updateItem(${i},'tax',this.value)">
+      <button class="btn danger" onclick="removeItem(${i})">×</button>
+    </div>`).join("");
+}
+function esc(s){return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll('"',"&quot;")}
+
+function calc(){
+  let subtotal=0,tax=0,discount=0;
+  const rows=items.map((it,i)=>{
+    const base=Math.max(0,(Number(it.rate)||0)*(Number(it.qty)||0));
+    const disc=Number(it.discount)||0;
+    const taxable=Math.max(0,base-disc);
+    const tx=taxable*(Number(it.tax)||0)/100;
+    const total=taxable+tx;
+    subtotal+=taxable;tax+=tx;discount+=disc;
+    return {...it,base,taxable,tx,total};
+  });
+  return {rows,subtotal,tax,discount,grandTotal:subtotal+tax};
+}
+
+function renderInvoice(){
+  const c=calc(), primary=val("primaryColor")||"#1454d9";
+  document.documentElement.style.setProperty("--primary",primary);
+  const logo=logoData?`<img class="logo" src="${logoData}" alt="Logo">`:`<div class="logo">YOUR<br>LOGO</div>`;
+  const rows=c.rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.description)||"—"}</td><td>${esc(r.hsn)||"—"}</td><td>${money(r.rate)}</td><td>${r.qty}</td><td>${money(r.discount)}</td><td>${money(r.taxable)}</td><td>${money(r.tx)}<br>(${r.tax}%)</td><td>${money(r.discount)}</td><td>${money(r.total)}</td></tr>`).join("");
+  $("invoicePreview").innerHTML=`
+    <div class="inv-head">
+      <div class="company">${logo}<div><h2>${esc(val("companyName"))||"Your Company Name"}</h2><div>${esc(val("tagline"))}</div><div class="lines"><div>${esc(val("companyAddress"))||"Business address"}</div><div>${esc(val("companyPhone"))||"Phone"}</div><div>${esc(val("companyEmail"))||"Email"}</div><div>${esc(val("companyWebsite"))||"Website"}</div></div><div style="margin-top:9px"><b>GSTIN:</b> ${esc(val("gstin"))||"—"} &nbsp; | &nbsp; <b>PAN:</b> ${esc(val("pan"))||"—"}</div></div></div>
+      <div class="tax-title"><div>This is a computer generated invoice</div><h1>TAX INVOICE</h1><div>(Original for Recipient)</div><div class="meta">
+        <b>Invoice Number</b><span>${esc(val("invoiceNumber"))||"INV-2026-000001"}</span>
+        <b>Invoice Date</b><span>${esc(val("invoiceDate"))||"—"}</span>
+        <b>Order ID</b><span>${esc(val("orderId"))||"—"}</span>
+        <b>Due Date</b><span>${esc(val("dueDate"))||"—"}</span>
+        <b>Payment Method</b><span>${esc(val("paymentMethod"))||"—"}</span>
+        <b>Payment Status</b><span><b>${esc(val("status"))}</b></span>
+        <b>Place of Supply</b><span>${esc(val("placeOfSupply"))||"—"}</span>
+        <b>Reference</b><span>${esc(val("reference"))||"—"}</span>
+      </div></div>
+    </div>
+    <div class="boxes">
+      <div class="ibox"><h3>◉ Customer Details</h3><b>${esc(val("customerName"))||"Customer Name"}</b><p>${esc(val("customerAddress"))||"Customer Address"}</p><div>☎ ${esc(val("customerPhone"))||"Phone"}</div><div>✉ ${esc(val("customerEmail"))||"Email"}</div><div style="margin-top:8px"><b>Place of Supply:</b> ${esc(val("placeOfSupply"))||"—"}</div></div>
+      <div class="ibox"><h3>▣ Shipping Address</h3><p>${esc(val("shippingAddress"))||"Shipping Address"}</p><div>☎ ${esc(val("customerPhone"))||"Phone"}</div><div>✉ ${esc(val("customerEmail"))||"Email"}</div></div>
+      <div class="ibox"><h3>▦ Invoice Info</h3><p><b>Date</b><br>${esc(val("invoiceDate"))||"—"}</p><p><b>Order</b><br>${esc(val("orderId"))||"—"}</p><p><b>Reference</b><br>${esc(val("reference"))||"—"}</p></div>
+    </div>
+    <table class="items"><thead><tr><th>S.No.</th><th>Description</th><th>HSN</th><th>Rate (₹)</th><th>Qty</th><th>Disc (₹)</th><th>Amount (₹)</th><th>IGST</th><th>Discount (₹)</th><th>Total (₹)</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><th colspan="4">Total</th><th>${c.rows.reduce((s,r)=>s+Number(r.qty||0),0)}</th><th></th><th colspan="4">${money(c.grandTotal)}</th></tr></tfoot></table>
+    <div class="bottom">
+      <div class="payment"><h3 style="color:${primary}">▣ Payment Information</h3><p><b>Payment Method:</b> ${esc(val("paymentMethod"))||"—"}</p><p><b>Transaction ID / UTR:</b> ${esc(val("utr"))||"—"}</p><p><b>Payment Date:</b> ${esc(val("paymentDate"))||"—"}</p><p><b>Amount Paid:</b> ${money(val("amountPaid"))}</p><p><b>Amount Due:</b> ${money(Math.max(0,c.grandTotal-(Number(val("amountPaid"))||0)))}</p><p><b>Payment Status:</b> ${esc(val("status"))}</p><hr><h2>Donate</h2><p>Thank you for your generous support!</p></div>
+      <div class="totals"><div class="total-row"><b>Item Total (Before Tax)</b><span>${money(c.subtotal)}</span></div><div class="total-row"><b>Total Tax</b><span>${money(c.tax)}</span></div><hr><div class="total-row"><b>Subtotal</b><span>${money(c.subtotal)}</span></div><div class="total-row"><b>Taxes (IGST)</b><span>${money(c.tax)}</span></div><div class="grand total-row"><span>Grand Total</span><span>${money(c.grandTotal)}</span></div><div class="total-row"><b>Amount in Words</b><span>${numberWords(Math.round(c.grandTotal))} RUPEE</span></div><hr><div><b>Payment terms:</b> ${esc(val("paymentTerms"))}</div><div style="margin-top:7px"><b>Whether tax is payable under reverse charge:</b> No</div></div>
+    </div>
+    <div class="signs"><div class="sign">Authorized Signature (Optional)<br><br>________________</div><div class="sign">Company Stamp (Optional)<br><br>◯</div><div class="sign">Digital / Manual Signature<br><br>________________</div></div>
+    <div class="footer">${esc(val("companyPhone"))||"Phone"} &nbsp; | &nbsp; ${esc(val("companyEmail"))||"Email"} &nbsp; | &nbsp; ${esc(val("companyWebsite"))||"Website"}<br>This is a computer generated invoice.</div>`;
+}
+
+function numberWords(n){
+  if(!n)return "ZERO";
+  const ones=["","ONE","TWO","THREE","FOUR","FIVE","SIX","SEVEN","EIGHT","NINE","TEN","ELEVEN","TWELVE","THIRTEEN","FOURTEEN","FIFTEEN","SIXTEEN","SEVENTEEN","EIGHTEEN","NINETEEN"];
+  const tens=["","","TWENTY","THIRTY","FORTY","FIFTY","SIXTY","SEVENTY","EIGHTY","NINETY"];
+  function two(x){return x<20?ones[x]:tens[Math.floor(x/10)]+(x%10?" "+ones[x%10]:"")}
+  function conv(x){if(x<100)return two(x);if(x<1000)return ones[Math.floor(x/100)]+" HUNDRED"+(x%100?" "+two(x%100):"");if(x<100000)return conv(Math.floor(x/1000))+" THOUSAND"+(x%1000?" "+conv(x%1000):"");if(x<10000000)return conv(Math.floor(x/100000))+" LAKH"+(x%100000?" "+conv(x%100000):"");return conv(Math.floor(x/10000000))+" CRORE"+(x%10000000?" "+conv(x%10000000):"")}
+  return conv(n);
+}
+
+$("logoInput").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{logoData=r.result;renderInvoice()};r.readAsDataURL(f)});
+document.addEventListener("input",e=>{if(e.target.closest("#page-create"))renderInvoice()});
+
+async function saveInvoice(){
+  const c=calc();
+  const payload={
+    invoiceNumber:val("invoiceNumber")||undefined,orderId:val("orderId")||undefined,
+    invoiceDate:val("invoiceDate"),dueDate:val("dueDate"),reference:val("reference"),status:val("status"),
+    seller:{name:val("companyName"),tagline:val("tagline"),address:val("companyAddress"),phone:val("companyPhone"),email:val("companyEmail"),website:val("companyWebsite"),gstin:val("gstin"),pan:val("pan"),logo:logoData},
+    customer:{name:val("customerName"),address:val("customerAddress"),phone:val("customerPhone"),email:val("customerEmail"),placeOfSupply:val("placeOfSupply")},
+    shipping:{address:val("shippingAddress")},
+    items:c.rows,
+    payment:{method:val("paymentMethod"),utr:val("utr"),date:val("paymentDate"),amountPaid:Number(val("amountPaid")||0),terms:val("paymentTerms")},
+    totals:{subtotal:c.subtotal,tax:c.tax,discount:c.discount,grandTotal:c.grandTotal},
+    design:{template:val("templateSelect"),primaryColor:val("primaryColor"),secondaryColor:val("secondaryColor"),font:val("fontFamily")}
+  };
+  const r=await fetch("/api/invoices",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  const d=await r.json(); if(d.ok){toast("Invoice saved successfully");go("history")}else toast(d.message);
+}
+
+async function loadDashboard(){
+  const r=await fetch("/api/dashboard");if(r.status===401)return location.reload();const d=await r.json();if(!d.ok)return;
+  $("totalIncome").textContent=money(d.stats.totalIncome);$("totalRevenue").textContent=money(d.stats.totalRevenue);$("monthlyIncome").textContent=money(d.stats.monthlyIncome);$("pendingAmount").textContent=money(d.stats.pendingAmount);$("paidCount").textContent=d.stats.paidCount;
+  $("overview").innerHTML=[["Paid",d.stats.paidCount,"Paid"],["Pending",d.stats.pendingCount,"Pending"],["Unpaid",d.stats.unpaidCount,"Unpaid"],["Failed",d.stats.failedCount,"Failed"],["Cancelled",d.stats.cancelledCount,"Cancelled"]].map(x=>`<div style="display:flex;justify-content:space-between"><span class="badge ${x[2]}">${x[0]}</span><b>${x[1]}</b></div>`).join("");
+  const ctx=$("revenueChart").getContext("2d");if(revenueChart)revenueChart.destroy();revenueChart=new Chart(ctx,{type:"line",data:{labels:d.chart.labels,datasets:[{label:"Income",data:d.chart.values,tension:.35,fill:true}]},options:{responsive:true,maintainAspectRatio:false}});
+  $("recentTable").innerHTML=invoiceTable(d.recent);
+}
+function invoiceTable(list){if(!list?.length)return `<div class="muted" style="padding:25px;text-align:center">No invoices yet.</div>`;return `<table><thead><tr><th>Invoice</th><th>Customer</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody>${list.map(i=>`<tr><td><b>${esc(i.invoiceNumber)}</b></td><td>${esc(i.customer?.name)||"—"}</td><td>${money(i.totals?.grandTotal)}</td><td>${esc(i.invoiceDate)||"—"}</td><td><span class="badge ${i.status}">${i.status}</span></td><td><button class="link" onclick="deleteInvoice('${i._id}')">Delete</button></td></tr>`).join("")}</tbody></table>`}
+
+async function loadHistory(status="All",btn){
+  if(btn){document.querySelectorAll(".filters button").forEach(x=>x.classList.remove("active"));btn.classList.add("active")}
+  const r=await fetch("/api/invoices?status="+encodeURIComponent(status));if(r.status===401)return location.reload();const d=await r.json();if(d.ok)$("historyTable").innerHTML=invoiceTable(d.invoices);
+}
+async function deleteInvoice(id){if(!confirm("Delete this invoice?"))return;const r=await fetch("/api/invoices/"+id,{method:"DELETE"});const d=await r.json();if(d.ok){toast("Invoice deleted");loadHistory("All")}else toast(d.message)}
+async function loadSettings(){const r=await fetch("/api/me");const d=await r.json();if(d.ok)$("settingsBox").innerHTML=`<div class="field"><label>Email</label><input value="${esc(d.user.email)}" disabled></div><div class="field"><label>Mobile</label><input value="${esc(d.user.mobile)}" disabled></div><div class="field"><label>WhatsApp</label><input value="${esc(d.user.whatsapp)}" disabled></div>`}
+
+function init(){
+  if(<%= loggedIn ? "true" : "false" %>){
+    const today=new Date().toISOString().slice(0,10);$("invoiceDate").value=today;$("invoiceNumber").value="";$("orderId").value="";
+    renderItemsEditor();renderInvoice();loadDashboard();
+  }
+}
+init();
+</script>
+</body>
+</html>
